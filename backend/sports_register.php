@@ -77,7 +77,7 @@ if ($stmt->execute([$college_name, $email, $phone, $gender, $sport, $player_name
 
     // Free sports — assign registration number + send email immediately
     if ($amount === 0) {
-        $reg_number = generateRegistrationNumber('SPT', $ref_id);
+        $reg_number = generateRegistrationNumber($sport, $ref_id);
         $conn->prepare("UPDATE sports_registrations SET registration_number=? WHERE id=?")
              ->execute([$reg_number, $ref_id]);
 

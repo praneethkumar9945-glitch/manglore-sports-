@@ -64,8 +64,8 @@ if ($event_name === 'payment.captured') {
         // Only assign registration number if not already set
         $reg_number = $reg['registration_number'];
         if (empty($reg_number)) {
-            $prefix     = $type === 'bgmi' ? 'BGMI' : ($type === 'marathon' ? 'MAR' : 'SPT');
-            $reg_number = generateRegistrationNumber($prefix, $ref_id);
+            $sport_key  = $type === 'bgmi' ? 'bgmi' : ($type === 'marathon' ? 'marathon' : ($reg['sport'] ?? 'sport'));
+            $reg_number = generateRegistrationNumber($sport_key, $ref_id);
         }
 
         $upd = $conn->prepare(

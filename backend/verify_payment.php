@@ -52,7 +52,7 @@ if (!$conn) sendJSON(false, 'DB connection failed');
 
 // --- Mark paid + assign registration number + fetch row for email ---
 if ($type === 'bgmi') {
-    $reg_number = generateRegistrationNumber('BGMI', $ref_id);
+    $reg_number = generateRegistrationNumber('bgmi', $ref_id);
     $stmt = $conn->prepare(
         "UPDATE bgmi_registrations
          SET payment_status='paid', razorpay_payment_id=?, registration_number=?
@@ -93,7 +93,7 @@ if ($type === 'bgmi') {
     ]);
 
 } elseif ($type === 'marathon') {
-    $reg_number = generateRegistrationNumber('MAR', $ref_id);
+    $reg_number = generateRegistrationNumber('marathon', $ref_id);
     $stmt = $conn->prepare(
         "UPDATE marathon_registrations
          SET payment_status='paid', razorpay_payment_id=?, registration_number=?
@@ -120,7 +120,13 @@ if ($type === 'bgmi') {
     ]);
 
 } elseif ($type === 'sport') {
-    $reg_number = generateRegistrationNumber('SPT', $ref_id);
+    // Fetch first to get sport key for registration number generation
+    $row = $conn->prepare("SELECT * FROM sports_registrations WHERE id=?");
+    $row->execute([$ref_id]);
+    $reg = $row->fetch(PDO::FETCH_ASSOC);
+    if (!$reg) sendJSON(false, 'Registration not found');
+
+    $reg_number = generateRegistrationNumber($reg['sport'], $ref_id);
     $stmt = $conn->prepare(
         "UPDATE sports_registrations
          SET payment_status='paid', razorpay_payment_id=?, registration_number=?
@@ -132,10 +138,6 @@ if ($type === 'bgmi') {
         error_log("verify_payment: no row updated. type=$type ref_id=$ref_id");
         sendJSON(false, 'Could not update payment record');
     }
-
-    $row = $conn->prepare("SELECT * FROM sports_registrations WHERE id=?");
-    $row->execute([$ref_id]);
-    $reg = $row->fetch(PDO::FETCH_ASSOC);
 
     sendRegistrationEmail($reg['email'], $reg['college_name'], [
         'type'                => 'sport',
