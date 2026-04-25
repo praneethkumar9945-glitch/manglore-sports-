@@ -12,6 +12,17 @@ dist
 dist-ssr
 *.local
 
+# ZIP uploads
+*.zip
+
+# Environment files — never commit these
+.env
+.env.*
+backend/.env
+
+# Node backend
+server.cjs
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
