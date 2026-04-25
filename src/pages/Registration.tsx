@@ -136,7 +136,7 @@ const Registration = () => {
   ) => {
     const result = await verifyPayment({ type: 'sport', ref_id: refId, response: paymentResponse });
     if (result.success) {
-      toast({ title: "Registration Complete!", description: "Payment confirmed. Your registration is complete!" });
+      toast({ title: "Registration Complete!", description: `${result.message} A confirmation email has been sent.` });
       formEl.reset();
       setSelectedSport(undefined);
       setGender("");
@@ -175,7 +175,7 @@ const Registration = () => {
     }
 
     // Step 1 — save registration
-    let regResult: { success: boolean; message: string; data?: { ref_id?: number; amount?: number; sport?: string } };
+    let regResult: { success: boolean; message: string; data?: { ref_id?: number; amount?: number; sport?: string; registration_number?: string } };
     try {
       const res = await fetch(`${API_BASE}/sports_register.php`, {
         method: 'POST',
@@ -206,7 +206,8 @@ const Registration = () => {
 
     // Free sports — already marked paid in backend, done
     if (amount === 0) {
-      toast({ title: "Registration Success!", description: "You are registered for free entry event!" });
+      const regNum = regResult.data?.registration_number ?? '';
+      toast({ title: "Registration Success!", description: `Registered! ${regNum ? `Your number: ${regNum}.` : ''} Confirmation email sent.` });
       formEl.reset();
       setSelectedSport(undefined);
       setGender("");

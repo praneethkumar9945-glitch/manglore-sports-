@@ -86,7 +86,7 @@ const BGMI = () => {
   const handlePaymentSuccess = async (paymentResponse: RazorpayPaymentResponse, refId: number, formEl: HTMLFormElement) => {
     const result = await verifyPayment({ type: 'bgmi', ref_id: refId, response: paymentResponse });
     if (result.success) {
-      toast({ title: "Registration Complete!", description: "Payment confirmed. Your squad is registered for BGMI 2026!" });
+      toast({ title: "Registration Complete!", description: `Squad registered for BGMI 2026!${result.registration_number ? ` Reg No: ${result.registration_number}` : ''} Confirmation email sent.` });
       formEl.reset();
     } else {
       toast({ title: "Verification Failed", description: result.message, variant: "destructive" });

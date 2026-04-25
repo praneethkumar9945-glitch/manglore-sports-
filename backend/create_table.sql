@@ -4,6 +4,7 @@ USE sports_fest;
 
 CREATE TABLE IF NOT EXISTS `bgmi_registrations` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
+  `registration_number` varchar(20) DEFAULT NULL,
   `squadName` varchar(255) NOT NULL,
   `leaderName` varchar(255) NOT NULL,
   `contactNumber` varchar(20) NOT NULL,
@@ -16,12 +17,14 @@ CREATE TABLE IF NOT EXISTS `bgmi_registrations` (
   `payment_status` varchar(50) NOT NULL DEFAULT 'pending',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
+  UNIQUE KEY `registration_number` (`registration_number`),
   KEY `email` (`email`),
   KEY `razorpay_order_id` (`razorpay_order_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `marathon_registrations` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
+  `registration_number` varchar(20) DEFAULT NULL,
   `full_name` varchar(255) NOT NULL,
   `college_name` varchar(255) NOT NULL,
   `email` varchar(255) NOT NULL,
@@ -37,12 +40,14 @@ CREATE TABLE IF NOT EXISTS `marathon_registrations` (
   `payment_status` varchar(50) NOT NULL DEFAULT 'pending',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
+  UNIQUE KEY `registration_number` (`registration_number`),
   KEY `email` (`email`),
   KEY `razorpay_order_id` (`razorpay_order_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `sports_registrations` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
+  `registration_number` varchar(20) DEFAULT NULL,
   `college_name` varchar(255) NOT NULL,
   `email` varchar(255) NOT NULL,
   `phone` varchar(20) NOT NULL,
@@ -57,6 +62,7 @@ CREATE TABLE IF NOT EXISTS `sports_registrations` (
   `payment_status` varchar(50) NOT NULL DEFAULT 'pending',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
+  UNIQUE KEY `registration_number` (`registration_number`),
   KEY `email` (`email`),
   KEY `razorpay_order_id` (`razorpay_order_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -73,16 +79,7 @@ CREATE TABLE IF NOT EXISTS `contacts` (
   KEY `email` (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Migration: add payment columns if table already exists
--- Run these only if upgrading an existing database:
--- ALTER TABLE bgmi_registrations ADD COLUMN IF NOT EXISTS razorpay_order_id varchar(100) DEFAULT NULL;
--- ALTER TABLE bgmi_registrations ADD COLUMN IF NOT EXISTS razorpay_payment_id varchar(100) DEFAULT NULL;
--- ALTER TABLE bgmi_registrations MODIFY COLUMN payment_status varchar(50) NOT NULL DEFAULT 'pending';
--- ALTER TABLE marathon_registrations ADD COLUMN IF NOT EXISTS amount int(11) NOT NULL DEFAULT 400;
--- ALTER TABLE marathon_registrations ADD COLUMN IF NOT EXISTS razorpay_order_id varchar(100) DEFAULT NULL;
--- ALTER TABLE marathon_registrations ADD COLUMN IF NOT EXISTS razorpay_payment_id varchar(100) DEFAULT NULL;
--- ALTER TABLE marathon_registrations ADD COLUMN IF NOT EXISTS payment_status varchar(50) NOT NULL DEFAULT 'pending';
--- ALTER TABLE sports_registrations ADD COLUMN IF NOT EXISTS amount int(11) NOT NULL DEFAULT 0;
--- ALTER TABLE sports_registrations ADD COLUMN IF NOT EXISTS razorpay_order_id varchar(100) DEFAULT NULL;
--- ALTER TABLE sports_registrations ADD COLUMN IF NOT EXISTS razorpay_payment_id varchar(100) DEFAULT NULL;
--- ALTER TABLE sports_registrations ADD COLUMN IF NOT EXISTS payment_status varchar(50) NOT NULL DEFAULT 'pending';
+-- Migration: run these if upgrading existing DB
+-- ALTER TABLE bgmi_registrations ADD COLUMN IF NOT EXISTS registration_number varchar(20) UNIQUE DEFAULT NULL AFTER id;
+-- ALTER TABLE marathon_registrations ADD COLUMN IF NOT EXISTS registration_number varchar(20) UNIQUE DEFAULT NULL AFTER id;
+-- ALTER TABLE sports_registrations ADD COLUMN IF NOT EXISTS registration_number varchar(20) UNIQUE DEFAULT NULL AFTER id;

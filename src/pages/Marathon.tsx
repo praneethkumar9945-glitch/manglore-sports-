@@ -23,7 +23,7 @@ const Marathon = () => {
   ) => {
     const result = await verifyPayment({ type: 'marathon', ref_id: refId, response: paymentResponse });
     if (result.success) {
-      toast({ title: "Registration Complete!", description: "Payment confirmed. You are registered for Nama Kudla Marathon 2026!" });
+      toast({ title: "Registration Complete!", description: `Registered for Nama Kudla Marathon 2026!${result.registration_number ? ` Reg No: ${result.registration_number}` : ''} Confirmation email sent.` });
       formEl.reset();
       setCategory("");
       setTshirtSize("");

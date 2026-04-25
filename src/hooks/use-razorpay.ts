@@ -32,6 +32,7 @@ export interface RazorpayPaymentResponse {
 export interface PaymentResult {
   success: boolean;
   message: string;
+  registration_number?: string;
 }
 
 export async function initiatePayment(params: {
@@ -150,5 +151,5 @@ export async function verifyPayment(params: {
     return { success: false, message: 'Invalid verification response' };
   }
 
-  return { success: data.success, message: data.message };
+  return { success: data.success, message: data.message, registration_number: (data as any).data?.registration_number };
 }
