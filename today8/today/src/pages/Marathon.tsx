@@ -16,6 +16,7 @@ const Marathon = () => {
   const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
   setSubmitting(true);
+  
   if (!category) {
   toast({
     title: "Error",
