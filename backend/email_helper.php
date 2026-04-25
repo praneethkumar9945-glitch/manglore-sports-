@@ -327,7 +327,7 @@ HTML;
           . "Speed · Strength · Spirit\n";
 
     $payload = [
-        'from'    => 'Mangalore Sports 2026 <onboarding@resend.dev>',
+        'from'    => 'Mangalore Sports 2026 <noreply@ssccmangalore.co.in>',
         'to'      => [$to_email],
         'subject' => "Registration Confirmed - $registration_number | $event_name",
         'html'    => $html,
