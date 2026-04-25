@@ -1,0 +1,88 @@
+<?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+header('Content-Type: application/json');
+
+require_once 'db_config.php';
+
+// Response function
+function sendJSONResponse($success, $message, $data = null) {
+    echo json_encode([
+        \"success\" => $success,
+        \"message\" => $message,
+        \"data\" => $data
+    ]);
+    exit;
+}
+
+// Get form data
+$input = $_POST;
+
+// Check request method
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    sendJSONResponse(false, 'Invalid request method');
+}
+
+// Validate required fields
+$requiredFields = ['full_name', 'college_name', 'email', 'phone', 'category', 'address'];
+
+foreach ($requiredFields as $field) {
+    if (empty($input[$field])) {
+        sendJSONResponse(false, \"Missing required field: $field\");
+    }
+}
+
+// Sanitize
+$full_name = htmlspecialchars(trim($input['full_name']));
+$college_name = htmlspecialchars(trim($input['college_name']));
+$phone = htmlspecialchars(trim($input['phone']));
+$email = filter_var(trim($input['email']), FILTER_VALIDATE_EMAIL);
+$category = htmlspecialchars(trim($input['category']));
+$tshirt_size = !empty($input['tshirt_size']) ? htmlspecialchars(trim($input['tshirt_size'])) : null;
+$dob = !empty($input['dob']) ? $input['dob'] : null;
+$emergency_contact = !empty($input['emergency_contact']) ? htmlspecialchars(trim($input['emergency_contact'])) : null;
+$address = htmlspecialchars(trim($input['address']));
+
+if (!$email) {
+    sendJSONResponse(false, \"Invalid email format\");
+}
+
+if (!in_array($category, ['mb40', 'ma40', 'wb40', 'wa40'])) {
+    sendJSONResponse(false, \"Invalid category\");
+}
+
+// DB
+$conn = getDBConnection();
+
+if (!$conn) {
+    sendJSONResponse(false, 'Database connection failed');
+}
+
+// Insert
+$stmt = $conn->prepare(\"INSERT INTO marathon_registrations 
+(full_name, college_name, email, phone, category, tshirt_size, dob, emergency_contact, address) 
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)\");
+
+$stmt->bind_param(\"sssssssss\", 
+    $full_name, 
+    $college_name, 
+    $email, 
+    $phone, 
+    $category,
+    $tshirt_size,
+    $dob,
+    $emergency_contact,
+    $address
+);
+
+if ($stmt->execute()) {
+    sendJSONResponse(true, 'Marathon registration submitted successfully!');
+} else {
+    sendJSONResponse(false, \"Error: \" . $stmt->error);
+}
+
+$stmt->close();
+$conn = null;
+?>
+

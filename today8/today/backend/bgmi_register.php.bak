@@ -1,0 +1,100 @@
+<?php
+
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+header('Content-Type: application/json');
+
+require_once 'db_config.php';
+
+// Response function
+function sendJSONResponse($success, $message, $data = null) {
+    echo json_encode([
+        "success" => $success,
+        "message" => $message,
+        "data" => $data
+    ]);
+    exit;
+}
+
+// Get form data
+$input = $_POST;
+
+// Check request method
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    sendJSONResponse(false, 'Invalid request method');
+}
+
+// Validate required fields
+$requiredFields = ['squadName', 'leaderName', 'contactNumber', 'email', 'collegeName'];
+
+foreach ($requiredFields as $field) {
+    if (empty($input[$field])) {
+        sendJSONResponse(false, "Missing required field: $field");
+    }
+}
+
+// Sanitize
+$squadName = htmlspecialchars(trim($input['squadName']));
+$leaderName = htmlspecialchars(trim($input['leaderName']));
+$contactNumber = htmlspecialchars(trim($input['contactNumber']));
+$email = filter_var(trim($input['email']), FILTER_VALIDATE_EMAIL);
+$collegeName = htmlspecialchars(trim($input['collegeName']));
+
+if (!$email) {
+    sendJSONResponse(false, "Invalid email format");
+}
+
+// Team members
+$teamMembers = isset($input['teamMembers']) ? $input['teamMembers'] : null;
+$amount = 1000;
+$payment_status = "Pending";
+
+if ($teamMembers) {
+    $teamMembers = $teamMembers; // already JSON string
+} else {
+    $teamMembers = "";
+}
+
+if (!$teamMembers) {
+    $teamMembers = "";
+}
+
+// DB
+$conn = getDBConnection();
+
+if (!$conn) {
+    sendJSONResponse(false, 'Database connection failed');
+}
+
+// Insert
+$stmt = $conn->prepare("INSERT INTO bgmi_registrations 
+(squadName, leaderName, contactNumber, email, collegeName, teamMembers, amount, payment_status) 
+VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+
+if (!$stmt) {
+    sendJSONResponse(false, "SQL Error: " . $conn->error);
+}
+
+$stmt->bind_param("ssssssis", 
+    $squadName, 
+    $leaderName, 
+    $contactNumber, 
+    $email, 
+    $collegeName, 
+    $teamMembers,
+    $amount,
+    $payment_status
+);
+
+if ($stmt->execute()) {
+    sendJSONResponse(true, 'BGMI Registration submitted successfully!');
+} else {
+    sendJSONResponse(false, "Error: " . $stmt->error);
+}
+
+$stmt->close();
+$conn = null;
+
+?>
+

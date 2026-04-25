@@ -1,0 +1,86 @@
+<?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+header('Content-Type: application/json');
+
+require_once 'db_config.php';
+
+// Response function
+function sendJSONResponse($success, $message, $data = null) {
+    echo json_encode([
+        \"success\" => $success,
+        \"message\" => $message,
+        \"data\" => $data
+    ]);
+    exit;
+}
+
+// Get form data
+$input = $_POST;
+
+// Check request method
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    sendJSONResponse(false, 'Invalid request method');
+}
+
+// Validate required fields
+$requiredFields = ['college_name', 'email', 'phone', 'gender', 'sport', 'address'];
+
+foreach ($requiredFields as $field) {
+    if (empty($input[$field])) {
+        sendJSONResponse(false, \"Missing required field: $field\");
+    }
+}
+
+// Sanitize
+$college_name = htmlspecialchars(trim($input['college_name']));
+$phone = htmlspecialchars(trim($input['phone']));
+$email = filter_var(trim($input['email']), FILTER_VALIDATE_EMAIL);
+$gender = htmlspecialchars(trim($input['gender']));
+$sport = htmlspecialchars(trim($input['sport']));
+$player_names = isset($input['player_names']) ? $input['player_names'] : '[]'; // JSON
+$emergency_contact = !empty($input['emergency_contact']) ? htmlspecialchars(trim($input['emergency_contact'])) : null;
+$address = htmlspecialchars(trim($input['address']));
+
+if (!$email) {
+    sendJSONResponse(false, \"Invalid email format\");
+}
+
+if (!in_array($gender, ['male', 'female', 'other'])) {
+    sendJSONResponse(false, \"Invalid gender\");
+}
+
+// DB
+$conn = getDBConnection();
+
+if (!$conn) {
+    sendJSONResponse(false, 'Database connection failed');
+}
+
+// Insert
+$stmt = $conn->prepare(\"INSERT INTO sports_registrations 
+(college_name, email, phone, gender, sport, player_names, emergency_contact, address) 
+VALUES (?, ?, ?, ?, ?, ?, ?, ?)\");
+
+$stmt->bind_param(\"ssssssss\", 
+    $college_name, 
+    $email, 
+    $phone, 
+    $gender,
+    $sport,
+    $player_names,
+    $emergency_contact,
+    $address
+);
+
+if ($stmt->execute()) {
+    sendJSONResponse(true, 'Sports registration submitted successfully!');
+} else {
+    sendJSONResponse(false, \"Error: \" . $stmt->error);
+}
+
+$stmt->close();
+$conn = null;
+?>
+
