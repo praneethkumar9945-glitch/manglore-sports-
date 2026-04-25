@@ -1,0 +1,10 @@
+{
+  "name": "manglore-sports/backend",
+  "require": {
+    "php": ">=7.4",
+    "razorpay/razorpay": "^2.8"
+  },
+  "config": {
+    "optimize-autoloader": true
+  }
+}
